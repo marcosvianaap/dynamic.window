@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb.db'
 db = SQLAlchemy(app)
 
@@ -192,7 +193,7 @@ def add_row(table_id):
         flash('Tabela não encontrada.', 'error')
         return redirect(url_for('edit_table', table_id=table_id))
 
-    row = Row(table_id=table.id)
+    row = Row(table_id=table_id)
     db.session.add(row)
     db.session.commit()
 
@@ -216,10 +217,10 @@ def delete_row(row_id):
 
 @app.route('/add_cell/<int:table_id>/<int:column_id>/<int:row_id>', methods=['POST'])
 def add_cell(table_id, column_id, row_id):
-    column = Column.query.get_or_404(column_id)
+    
     row = Row.query.get_or_404(row_id)
     value = request.form['value']
-    cell = Cell(column=column, row=row, value=value)
+    cell = Cell(row=row, value=value)
     db.session.add(cell)
     db.session.commit()
     return redirect(url_for('edit_table', table_id=table_id))
@@ -227,9 +228,9 @@ def add_cell(table_id, column_id, row_id):
 
 @app.route('/delete_cell/<int:table_id>/<int:column_id>/<int:row_id>', methods=['POST'])
 def delete_cell(table_id, column_id, row_id):
-    column = Column.query.get_or_404(column_id)
+
     row = Row.query.get_or_404(row_id)
-    cell = Cell.query.filter_by(column=column, row=row).first()
+    cell = Cell.query.filter_by(row=row).first()
     db.session.delete(cell)
     db.session.commit()
     return redirect(url_for('edit_table', table_id=table_id))
