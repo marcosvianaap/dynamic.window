@@ -27,3 +27,16 @@ th, td {
 .cards form {
     margin-top: 10px; /*margem superior para separar o formulário do texto */
 }
+
+.cell {
+    display: flex;
+    align-items: center;
+  }
+
+  .cell span {
+    margin-right: 10px;
+  }
+
+  .cell button {
+    margin-left: 10px;
+  }

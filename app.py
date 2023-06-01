@@ -12,7 +12,7 @@ db = SQLAlchemy(app)
 
 class Table(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(50), nullable=False)
     columns = db.relationship('Column', backref='table', lazy='dynamic', cascade='all, delete-orphan')
     rows = db.relationship('Row', backref='table', lazy='dynamic', cascade='all, delete-orphan')
 
@@ -55,27 +55,24 @@ class Column(db.Model):
 class Row(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     table_id = db.Column(db.Integer, db.ForeignKey('table.id'))
-    cells = db.relationship('Cell', backref='row', cascade='all, delete-orphan')
+    cells = db.relationship('Cell', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"<Row {self.id}>"
 
-"""A classe Cell possui os seguintes atributos e propriedades:
 
-id: Identificador único da célula (chave primária).
-row_id: Chave estrangeira que faz referência à linha à qual a célula pertence.
-column_id: Chave estrangeira que faz referência à coluna à qual a célula pertence.
-value: Valor da célula, armazenado como uma string.
-__repr__(): Método especial que retorna uma representação textual da célula, 
-no caso, a representação é uma string que contém o valor da célula."""
 class Cell(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     row_id = db.Column(db.Integer, db.ForeignKey('row.id'))
     column_id = db.Column(db.Integer, db.ForeignKey('column.id'))
     value = db.Column(db.String(255))
 
+    row = db.relationship('Row', backref='cell')
+    column = db.relationship('Column', backref='cells')
+
     def __repr__(self):
         return f"<Cell {self.value}>"
+
 
 
 
@@ -110,25 +107,22 @@ def create_table():
     return render_template('create_table.html')
 
 
-
-
 """Permite editar o nome de uma tabela existente.
 Funcionalidade:
 Obtém o objeto Table correspondente ao ID fornecido.
 Se a solicitação for do tipo POST, atualiza o nome da tabela com o valor do formulário.
 Salva a sessão do banco de dados.
-Redireciona para a página inicial.
 Se a solicitação for do tipo GET, renderiza o modelo de template edit_table.html, 
 passando a tabela como argumento."""
 @app.route('/edit_table/<int:table_id>', methods=['GET', 'POST'])
 def edit_table(table_id):
     table = Table.query.get_or_404(table_id)
-    rows = Row.query.filter_by(table_id=table_id).all()
+    
     if request.method == 'POST':
         table.name = request.form['name']
         db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('edit_table.html', table=table)
+    
+    return render_template('edit_table.html', table_id=table_id, table=table)
 
 
 """Exclui uma tabela específica.
@@ -143,7 +137,6 @@ def delete_table(table_id):
     db.session.delete(table)
     db.session.commit()
     return redirect(url_for('index'))
-
 
 
 """Adiciona uma nova coluna a uma tabela específica.
@@ -168,7 +161,6 @@ def add_column(table_id):
     return render_template('add_column.html', table=table)
 
 
-
 """Exclui uma coluna específica de uma tabela.
 Funcionalidade:
 Obtém o objeto Column correspondente ao ID fornecido.
@@ -188,36 +180,30 @@ def delete_column(column_id):
 @app.route('/add_row/<int:table_id>', methods=['POST'])
 def add_row(table_id):
     table = Table.query.get(table_id)
-
     if table is None:
         flash('Tabela não encontrada.', 'error')
         return redirect(url_for('edit_table', table_id=table_id))
-
     row = Row(table_id=table_id)
     db.session.add(row)
     db.session.commit()
-
     flash('Linha adicionada com sucesso.', 'success')
     return redirect(url_for('edit_table', table_id=table_id))
+
 
 @app.route('/delete_row/<int:row_id>', methods=['POST'])
 def delete_row(row_id):
     row = Row.query.get(row_id)
-
     if row is None:
         flash('Linha não encontrada.', 'error')
         return redirect(url_for('edit_table', table_id=row.table_id))
-
     db.session.delete(row)
     db.session.commit()
-
     flash('Linha excluída com sucesso.', 'success')
     return redirect(url_for('edit_table', table_id=row.table_id))
 
 
 @app.route('/add_cell/<int:table_id>/<int:column_id>/<int:row_id>', methods=['POST'])
-def add_cell(table_id, column_id, row_id):
-    
+def add_cell(table_id, column_id, row_id):   
     row = Row.query.get_or_404(row_id)
     value = request.form['value']
     cell = Cell(row=row, value=value)
@@ -226,14 +212,67 @@ def add_cell(table_id, column_id, row_id):
     return redirect(url_for('edit_table', table_id=table_id))
 
 
+@app.route('/edit_cell/<int:table_id>/<int:column_id>/<int:row_id>', methods=['POST'])
+def edit_cell(table_id, column_id, row_id):
+    row = Row.query.get_or_404(row_id)
+    column = Column.query.get_or_404(column_id)
+    cell = Cell.query.filter_by(row=row, column=column).first()
+    
+    if not cell:
+        flash('Célula não encontrada.', 'error')
+        return redirect(url_for('edit_table', table_id=table_id))
+    
+    if 'delete' in request.form:
+        # Delete the specific cell
+        db.session.delete(cell)
+        db.session.commit()
+        flash('Célula excluída com sucesso.', 'success')
+    else:
+        # Update the value of the specific cell
+        cell.value = request.form['value']
+        db.session.commit()
+        flash('Célula editada com sucesso.', 'success')
+    
+    return redirect(url_for('edit_table', table_id=table_id))
+
+
+
 @app.route('/delete_cell/<int:table_id>/<int:column_id>/<int:row_id>', methods=['POST'])
 def delete_cell(table_id, column_id, row_id):
-
     row = Row.query.get_or_404(row_id)
-    cell = Cell.query.filter_by(row=row).first()
-    db.session.delete(cell)
-    db.session.commit()
+    column = Column.query.get_or_404(column_id)
+    cell = Cell.query.filter_by(row=row, column=column).first()
+       
+    if cell:
+        db.session.delete(cell)
+        db.session.commit()
+        flash('Célula excluída com sucesso.', 'success')
+        
+    if not cell:
+        flash('Célula não encontrada.', 'error')
+        
     return redirect(url_for('edit_table', table_id=table_id))
+
+
+
+
+
+# Rota para mostrar os dados de uma célula específica
+@app.route('/show_cell/<int:table_id>/<int:column_id>/<int:row_id>')
+def show_cell(table_id, column_id, row_id):
+    row = Row.query.get_or_404(row_id)
+    column = Column.query.get_or_404(column_id)
+    cell = Cell.query.filter_by(row=row, column=column).first()
+
+    if cell is None:
+        flash('Célula não encontrada.', 'error')
+        return redirect(url_for('edit_table', table_id=table_id))
+
+    return render_template('edit_table.html', table_id=table_id)
+
+
+ 
+
 
 
 """Renderiza uma página com uma lista de todas as tabelas existentes.

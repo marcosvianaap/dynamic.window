@@ -26,7 +26,7 @@
                 <h2>Adicionar coluna</h2>
                 <form action="{{ url_for('add_column', table_id=table.id) }}" method="POST">
                     <input type="text" name="name" placeholder="Nome da coluna" required>
-                    <button type="submit">Adicioner</button>
+                    <button type="submit">Adicione</button>
                 </form>
             </div>
 
@@ -52,7 +52,7 @@
                             <th id="column-{{ loop.index }}">
                                 {{ column.name }}
                                 <form action="{{ url_for('delete_column', column_id=column.id) }}" method="POST">
-                                    <button type="submit">Remover</button>
+                                    <button type="submit">Excluir</button>
                                 </form>
                             </th>
                         {% endfor %}
@@ -79,15 +79,18 @@
                                 </td>
                                 {% set found_cell = False %}
                             {% else %}
-                                <td>
-                                    <form action="{{ url_for('add_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
-                                        <input type="text" name="value" placeholder="Novo elemento" required>
-                                        <button type="submit">Add</button>
-                                    </form>
-                                    <form action="{{ url_for('delete_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
-                                        <button type="submit">Delete</button>
-                                    </form>
-                                </td>
+                            <td>
+                                <form class="cell" action="{{ url_for('add_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
+                                    <input type="text" name="value" placeholder="Novo elemento" required>
+                                    <button class="add-button" onclick="updateCell(event)">Add</button>
+                                </form>
+                                <form class="cell" action="{{ url_for('delete_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
+                                    <button class="delete-button" type="submit" style="display: none;">Excluir</button>
+                                     
+                                </form>
+                            </td>
+                            
+                                
                             {% endif %}
                         {% endfor %}
                        <td>

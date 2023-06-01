@@ -1,19 +1,21 @@
-// Arquivo edit_table.js
+function updateCell(event) {
+  event.preventDefault(); // Evita o envio do formulário
 
-// Espera que o documento HTML esteja completamente carregado antes de executar qualquer código JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // Adiciona um ouvinte de evento para o botão de adicionar linha
-    var addRowBtn = document.getElementById('add-row-btn');
-    if (addRowBtn) {
-      addRowBtn.addEventListener('click', function(event) {
-        event.preventDefault(); // Impede o comportamento padrão do botão de envio do formulário
-  
-        // Obtém o formulário pai do botão
-        var form = addRowBtn.closest('form');
-        if (form) {
-          form.submit(); // Submete o formulário para a rota 'add_row'
-        }
-      });
-    }
-  });
-  
+  // Obtém os elementos do formulário
+  var addForm = event.target.closest(".cell");
+  var deleteForm = addForm.nextElementSibling;
+
+  // Exibe o botão "Excluir" e oculta o botão "Add"
+  addForm.style.display = "none";
+  deleteForm.querySelector(".delete-button").style.display = "inline";
+
+  // Obtém o valor da célula
+  var cellValue = addForm.querySelector("input[name='value']").value;
+
+  // Cria um elemento para exibir o valor da célula
+  var cellValueElement = document.createElement("span");
+  cellValueElement.textContent = cellValue;
+
+  // Insere o elemento na célula
+  addForm.parentNode.insertBefore(cellValueElement, addForm);
+}
