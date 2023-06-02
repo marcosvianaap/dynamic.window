@@ -40,3 +40,17 @@ th, td {
   .cell button {
     margin-left: 10px;
   }
+
+
+  .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4da2fe;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
