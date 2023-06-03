@@ -2,40 +2,42 @@
 <html>
     <head>
         <link rel="stylesheet" href="../static/edit_table.css">
-        <title>Editar tabela</title>
+        <title>Edit table</title>
     </head>
 
     <body>
         <!-- Botão para redirecionar para a rota "/" -->
-        <button class="btn" onclick="redirectToIndex()">Pagina Inicial</button>
-        <button  class="btn" onclick="redirectToShowtable()">Ver Tabelas</button>
-        <h1>Editar a tabela: {{ table.name }}</h1>
+        <div class="botão">
+            <button id="button-container" class="btn" onclick="redirectToIndex()">Home</button>
+            <button id="button-container" class="btn" onclick="redirectToShowtable()">View Tables</button>
+        </div>
+        <h1>Edit the table: {{ table.name }}</h1>
         <hr><br>
 
-        <div class="carousell">
+        <div class="carousell" style="margin: 0 auto;">
             <!-- div que permite alterar o nome da tabela -->
             <div class="cards">
-                <h2>Alterar nome da tabela:</h2>
+                <h2>Change Table Name</h2>
                 <form action="{{ url_for('edit_table', table_id=table.id) }}" method="POST">
                     <input type="text" name="name" value="{{ table.name }}" required>
-                    <button type="submit">Mudar</button>
+                    <button type="submit">Update</button>
                 </form>
             </div>
 
             <!-- div que faz adição de colunas -->
             <div class="cards">
-                <h2>Adicionar coluna</h2>
+                <h2>Add Columns</h2>
                 <form action="{{ url_for('add_column', table_id=table.id) }}" method="POST">
-                    <input type="text" name="name" placeholder="Nome da coluna" required>
-                    <button type="submit">Adicione</button>
+                    <input type="text" name="name" placeholder="Column name" required>
+                    <button type="submit">Add</button>
                 </form>
             </div>
 
             <!-- div que faz adição de linhas -->
             <div class="cards">
-                <h2>Adicionar linha</h2>
+                <h2>Add Row</h2>
                 <form action="{{ url_for('add_row', table_id=table.id) }}" method="POST">
-                    <button type="submit">Adicionar</button>
+                    <button type="submit">Add</button>
                 </form>
             </div>
 
@@ -44,16 +46,16 @@
 
         <!-- section de exibição das tabelas -->
         <section>
-            <h2>{{ table.name }}:</h2>
+            <h2 style="text-align: center;">{{ table.name }}</h2>
             <table class="edit-table">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th>ID</th>
                         {% for column in table.columns %}
                             <th id="column-{{ loop.index }}">
                                 {{ column.name }}
                                 <form action="{{ url_for('delete_column', column_id=column.id) }}" method="POST">
-                                    <button type="submit">Excluir</button>
+                                    <button type="submit">Delete</button>
                                 </form>
                             </th>
                         {% endfor %}
@@ -68,14 +70,14 @@
                                 {% if cell %}
                                     <td>
                                         <span>{{ cell.value }}</span>
-                                        <form class="cell" action="{{ url_for('delete_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
-                                            <button class="delete-button" type="submit">Excluir</button>
+                                        <form class="cell"  action="{{ url_for('delete_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
+                                            <button class="delete-button" type="submit">Delete</button>
                                         </form>
                                     </td>
                                 {% else %}
                                     <td>
                                         <form class="cell" action="{{ url_for('add_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
-                                            <input type="text" name="value" placeholder="Novo elemento" required>
+                                            <input type="text" name="value" placeholder="New element" required>
                                             <button class="add-button" type="submit">Add</button>
                                         </form>
                                     </td>
@@ -83,7 +85,7 @@
                             {% endfor %}
                             <td>
                                 <form action="{{ url_for('delete_row', table_id=table.id, row_id=row.id) }}" method="POST">
-                                    <button type="submit">Deletar linha</button>
+                                    <button type="submit">Delete line</button>
                                 </form>
                             </td>
                         </tr>
