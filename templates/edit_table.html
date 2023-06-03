@@ -4,15 +4,16 @@
         <link rel="stylesheet" href="../static/edit_table.css">
         <title>Editar tabela</title>
     </head>
-    
-    <body>
 
+    <body>
+        <!-- Botão para redirecionar para a rota "/" -->
+        <button class="btn" onclick="redirectToIndex()">Pagina Inicial</button>
+        <button  class="btn" onclick="redirectToShowtable()">Ver Tabelas</button>
         <h1>Editar a tabela: {{ table.name }}</h1>
         <hr><br>
 
-        <div class="carousell" >
-
-                <!-- div que permite alterar o nome da tabela -->
+        <div class="carousell">
+            <!-- div que permite alterar o nome da tabela -->
             <div class="cards">
                 <h2>Alterar nome da tabela:</h2>
                 <form action="{{ url_for('edit_table', table_id=table.id) }}" method="POST">
@@ -21,7 +22,7 @@
                 </form>
             </div>
 
-                <!-- div que faz adição de colunas -->
+            <!-- div que faz adição de colunas -->
             <div class="cards">
                 <h2>Adicionar coluna</h2>
                 <form action="{{ url_for('add_column', table_id=table.id) }}" method="POST">
@@ -30,20 +31,14 @@
                 </form>
             </div>
 
-                <!-- div que faz adição de linhas -->
+            <!-- div que faz adição de linhas -->
             <div class="cards">
                 <h2>Adicionar linha</h2>
                 <form action="{{ url_for('add_row', table_id=table.id) }}" method="POST">
                     <button type="submit">Adicionar</button>
-                </form>           
+                </form>
             </div>
 
-            <div class="cards">                                                      
-                <div class="d-flex justify-content-center">
-                    <a href="{{ url_for('show_tables') }}" class="btn">Ver Tabelas</a>
-                </div>                               
-            </div>   
-            
         </div>
         <br><br><hr>
 
@@ -66,52 +61,49 @@
                 </thead>
                 <tbody>
                     {% for row in table.rows %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        {% set found_cell = False %}
-                        {% for column in table.columns %}
-                            {% set cell = None %}
-                            {% for c in row.cells %}
-                                {% if c.column_id == column.id %}
-                                    {% set cell = c %}
-                                    {% set found_cell = True %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            {% for column in table.columns %}
+                            {% set cell = row.cells|selectattr('column_id', '==', column.id)|first %}
+                                {% if cell %}
+                                    <td>
+                                        <span>{{ cell.value }}</span>
+                                        <form class="cell" action="{{ url_for('delete_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
+                                            <button class="delete-button" type="submit">Excluir</button>
+                                        </form>
+                                    </td>
+                                {% else %}
+                                    <td>
+                                        <form class="cell" action="{{ url_for('add_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
+                                            <input type="text" name="value" placeholder="Novo elemento" required>
+                                            <button class="add-button" type="submit">Add</button>
+                                        </form>
+                                    </td>
                                 {% endif %}
                             {% endfor %}
-                            {% if found_cell %}
-                                <td>
-                                    <form action="{{ url_for('add_cell', table_id=table.id, row_id=row.id) }}" method="POST">
-                                        <input type="text" name="value" value="{{ cell.value if cell else '' }}" required>
-                                    </form>
-                                </td>
-                                {% set found_cell = False %}
-                            {% else %}
                             <td>
-                                <form class="cell" action="{{ url_for('add_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
-                                    <input type="text" name="value" placeholder="Novo elemento" required>
-                                    <button class="add-button" onclick="updateCell(event)">Add</button>
-                                </form>
-                                <form class="cell" action="{{ url_for('delete_cell', table_id=table.id, column_id=column.id, row_id=row.id) }}" method="POST">
-                                    <button class="delete-button" type="submit" style="display: none;">Excluir</button>
-                                     
+                                <form action="{{ url_for('delete_row', table_id=table.id, row_id=row.id) }}" method="POST">
+                                    <button type="submit">Deletar linha</button>
                                 </form>
                             </td>
-                            
-                            {% endif %}
-                        {% endfor %}
-                       <td>
-                            <form action="{{ url_for('delete_row', table_id=table.id, row_id=row.id) }}" method="POST">
-                                <button type="submit">Deletar linha</button>
-                            </form>
-                        
-                       </td>
-                    </tr>
+                        </tr>
                     {% endfor %}
-                </tbody>                            
+                </tbody>
             </table>
-          
         </section>
 
-        <script src="../static/edit_table.js"></script> <!-- Referencia para arquivos js -->
-        <script src="../static/js/jquery-3.6.4.js"></script> <!-- Chamada de jQuery -->        
+        <script src="../static/js/jquery-3.6.4.js"></script> <!-- Chamada de jQuery -->
+        <script>
+            
+            // Redirect to index
+            function redirectToIndex() {
+                window.location.href = "/";
+            }
+
+            // Redirect to show table
+            function redirectToShowtable() {
+            window.location.href = "{{ url_for('show_tables') }}"
+            }
+        </script>
     </body>
 </html>

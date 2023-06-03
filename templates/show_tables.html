@@ -8,12 +8,15 @@
 
         <!-- Seção de carrossel para listar as tabelas existentes -->
         <section>
+            <!-- Botão para redirecionar para a rota "/" -->
+        <button class="btn" onclick="redirectToIndex()">Página Inicial</button>
             <h1>Mostrar Tabelas</h1>
             <div class="carousel">
                 {% for table in tables %}
                     <a href="#" class="table-card" data-table-id="{{ table.id }}">
                         {{ table.name }}
                     </a>
+                   
                 {% endfor %}
             </div>
         </section>
@@ -36,21 +39,26 @@
                             {% for row in table_data %}
                                 <tr>
                                     {% for column in columns %}
-                                        <td class="estilo">{{ row[column] }}</td>
+                                        {% if column in row %}
+                                            <td class="estilo">{{ row[column] }}</td>
+                                        {% else %}
+                                            <td class="estilo"></td>
+                                        {% endif %}
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
                         </tbody>
-                        
                     </table>
                 </div>
             </div>
+            
         </section>
-        
-
-
-
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            function redirectToIndex() {
+                window.location.href = "/";
+            }
+        </script>
         <script>
             $(document).ready(function() {
                 $(".table-card").click(function() {
@@ -65,10 +73,21 @@
                         type: "GET",
                         success: function(data) {
                             $("#table-name").text(data.table_name); // Definir o nome da tabela
-                            var tableData = data.columns.map(function(column) {
-                                return "<td>" + column + "</td>"; // Criar uma célula de coluna para cada coluna na tabela
+
+                            // Preencher as colunas da tabela
+                            var tableColumns = data.columns.map(function(column) {
+                                return "<th class='estilo'>" + column + "</th>"; // Criar uma célula de coluna para cada coluna na tabela
                             });
-                            $("#table-data tbody").html("<tr>" + tableData.join("") + "</tr>"); // Adicionar os dados da tabela ao corpo da tabela HTML
+                            $("#table-data thead tr").html(tableColumns.join("")); // Adicionar as colunas à linha de cabeçalho da tabela
+
+                            // Preencher os dados da tabela
+                            var tableData = data.table_data.map(function(row) {
+                                var rowData = data.columns.map(function(column) {
+                                    return "<td class='estilo'>" + (row[column] || "") + "</td>"; // Criar células de dados para cada coluna na linha
+                                });
+                                return "<tr>" + rowData.join("") + "</tr>"; // Criar uma linha com as células de dados
+                            });
+                            $("#table-data tbody").html(tableData.join("")); // Adicionar as linhas de dados ao corpo da tabela HTML
                         },
                         error: function() {
                             $(".selected-table").html("<p>Erro ao carregar os dados da tabela.</p>");
@@ -77,5 +96,6 @@
                 }
             });
         </script>
+      
     </body>
 </html>

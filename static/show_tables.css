@@ -15,6 +15,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer; /* Adicionado para indicar que o elemento é clicável */
+}
+
+.table-card:hover {
+    background-color: #9ad0db; /* Cor alterada para realçar quando o mouse passar por cima */
 }
 
 .table-card2 {
@@ -23,8 +28,8 @@
     background-color: #f5f5f5;
     border: 1px solid #ccc;
     border-radius: 5px;
+    margin-top: 20px; /* Adicionado um espaçamento superior para separar da tabela selecionada */
 }
-
 
 .estilo {
     border: 1px solid #ccc;
@@ -40,6 +45,7 @@ table {
 th {
     background-color: #f5f5f5;
     font-weight: bold;
+    padding: 8px; /* Aumentado o espaçamento interno para os cabeçalhos da tabela */
 }
 
 tr:nth-child(even) {
@@ -49,3 +55,17 @@ tr:nth-child(even) {
 tr:hover {
     background-color: #ebebeb;
 }
+
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4da2fe;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    }
+    
+    .btn:hover {
+        background-color: #0056b3;
+    }
