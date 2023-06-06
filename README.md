@@ -1,11 +1,12 @@
 # Divisão do código
-Aqui está um detalhamento do código:
+(https://dynamicwindow.herokuapp.com/) >> Para visualizar a aplicação.
+[Aqui está um detalhamento do código:]
 
 # Importando módulos necessários:
 - Flask é a estrutura da web.
 - render_template é usado para renderizar modelos HTML.
 - request lida com solicitações HTTP.
-- redirecionar e url_for são usados ​​para redirecionamento de URL.
+- redirecionar e url_for são usados para redirecionamento de URL.
 - jsonify é usado para serializar objetos no formato JSON.
 - SQLAlchemy é uma biblioteca ORM (Object-Relational Mapping) para operações de banco de dados.
 
