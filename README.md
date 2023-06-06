@@ -1,6 +1,6 @@
 # Divisão do código
 (https://dynamicwindow.herokuapp.com/) >> Para visualizar a aplicação.
-[Aqui está um detalhamento do código:]
+
 
 # Importando módulos necessários:
 - Flask é a estrutura da web.
